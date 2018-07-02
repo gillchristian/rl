@@ -5,7 +5,7 @@ A FIFO reading list CLI.
 ## Install
 
 ```
-$ go get github.com/gillchristian/rl
+$ go get github.com/gillchristian/rl/cmd/rl
 ```
 
 ## Use
@@ -27,6 +27,7 @@ AUTHOR:
 COMMANDS:
      add      Add item to the reading list.
      done     Remove next item from the reading list.
+     open     Open next item in the browser.
      show     Show next in the reading list.
      help, h  Shows a list of commands or help for one command
 
