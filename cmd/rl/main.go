@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
-	xdgOpen "github.com/skratchdot/open-golang/open"
+	"github.com/gillchristian/rl"
 	"github.com/urfave/cli"
 )
 
@@ -64,10 +62,10 @@ func main() {
 
 func addOrshow(c *cli.Context) error {
 	if c.NArg() == 0 {
-		return show(c)
+		return rl.Show(fileName)
 	}
 
-	return add(c)
+	return rl.Add(fileName, c.Args()[0])
 }
 
 func add(c *cli.Context) error {
@@ -76,91 +74,17 @@ func add(c *cli.Context) error {
 		return nil
 	}
 
-	i := c.Args()[0] + "\n"
-
-	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	defer f.Close()
-
-	_, err = f.WriteString(i)
-
-	return err
+	return rl.Add(fileName, c.Args()[0])
 }
 
 func done(c *cli.Context) error {
-	b, err := ioutil.ReadFile(fileName)
-	if os.IsNotExist(err) {
-		fmt.Println("No items in your reading list!")
-		return err
-	}
-
-	if err != nil {
-		return err
-	}
-
-	rl := filterEmpty(strings.Split(string(b), "\n"))
-
-	if len(rl) == 0 {
-		fmt.Println("No items in your reading list!")
-		return nil
-	}
-
-	f := []byte(strings.Join(rl[1:], "\n") + "\n")
-
-	return ioutil.WriteFile(fileName, f, os.ModeAppend)
+	return rl.Done(fileName)
 }
 
 func open(c *cli.Context) error {
-	b, err := ioutil.ReadFile(fileName)
-	if os.IsNotExist(err) {
-		fmt.Println("No items in your reading list!")
-		return err
-	}
-
-	if err != nil {
-		return err
-	}
-
-	rl := filterEmpty(strings.Split(string(b), "\n"))
-
-	if len(rl) == 0 {
-		fmt.Println("No items in your reading list!")
-		return nil
-	}
-
-	return xdgOpen.Start(rl[0])
+	return rl.Open(fileName)
 }
 
 func show(c *cli.Context) error {
-	b, err := ioutil.ReadFile(fileName)
-	if os.IsNotExist(err) {
-		fmt.Println("No items in your reading list!")
-		return err
-	}
-
-	if err != nil {
-		return err
-	}
-
-	rl := filterEmpty(strings.Split(string(b), "\n"))
-
-	if len(rl) == 0 {
-		fmt.Println("No items in your reading list!")
-		return nil
-	}
-
-	fmt.Println(rl[0])
-
-	return nil
-}
-
-func filterEmpty(a []string) []string {
-	b := a[:0]
-
-	for _, s := range a {
-		if s != "\n" && s != "" {
-			b = append(b, s)
-		}
-	}
-
-	return b
+	return rl.Show(fileName)
 }
