@@ -7,30 +7,73 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
+	"os/user"
+	"path/filepath"
+
+	"github.com/gillchristian/rl"
 )
+
+const pinboardAPI = "https://api.pinboard.in/v1"
 
 type item struct {
 	Href string `json:"href"`
 }
 
+// TODO (refactor): this initialization is shared in both cmd/ packages
+var fileName string
+
+func init() {
+	usr, _ := user.Current()
+	dir := usr.HomeDir
+
+	fileName = filepath.Join(dir, ".reading-list")
+}
+
 func main() {
 	user := os.Args[1]
 	token := os.Args[2]
-	url := "https://api.pinboard.in/v1/posts/all?auth_token=" + user + ":" + token + "&format=json"
+
+	new, err := fetch(user, token)
+
+	checkAndPanic(err)
+
+	err = write(new)
+
+	checkAndPanic(err)
+}
+
+func write(new rl.ReadingList) error {
+	existing, err := rl.Read(fileName)
+
+	if err != nil {
+		return err
+	}
+
+	existing.Items = append(existing.Items, new.Items...)
+	existing.Added += len(new.Items)
+
+	err = rl.Write(fileName, existing)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fetch(user, token string) (rl.ReadingList, error) {
+	url := pinboardAPI +
+		fmt.Sprintf("/posts/all?auth_token=%s:%s&format=json", user, token)
 
 	r, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
-		return
+		return rl.ReadingList{}, err
 	}
-
 	defer r.Body.Close()
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err.Error())
-		return
+		return rl.ReadingList{}, err
 	}
 
 	items := []item{}
@@ -38,17 +81,24 @@ func main() {
 	err = json.Unmarshal(b, &items)
 
 	if err != nil {
-		log.Fatal(err.Error())
-		return
+		return rl.ReadingList{}, err
 	}
 
-	links := make([]string, len(items))
+	readingList := rl.ReadingList{
+		Reads: 0,
+		Added: 0,
+		Items: make([]string, len(items)),
+	}
 
 	for i, item := range items {
-		links[i] = item.Href
+		readingList.Items[i] = item.Href
 	}
 
-	s := strings.Join(links, "\n")
+	return readingList, nil
+}
 
-	fmt.Println(s)
+func checkAndPanic(err error) {
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
