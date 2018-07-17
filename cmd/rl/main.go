@@ -41,19 +41,19 @@ func main() {
 			Name:      "done",
 			Usage:     "Remove next item from the reading list.",
 			UsageText: "$ rl done",
-			Action:    done,
+			Action:    func(c *cli.Context) error { return rl.Done(fileName) },
 		},
 		{
 			Name:      "open",
 			Usage:     "Open next item in the browser.",
 			UsageText: "$ rl open",
-			Action:    open,
+			Action:    func(c *cli.Context) error { return rl.Open(fileName) },
 		},
 		{
 			Name:      "show",
 			Usage:     "Show next in the reading list.",
 			UsageText: "$ rl show",
-			Action:    show,
+			Action:    func(c *cli.Context) error { return rl.Show(fileName) },
 		},
 	}
 
@@ -75,16 +75,4 @@ func add(c *cli.Context) error {
 	}
 
 	return rl.Add(fileName, c.Args()[0])
-}
-
-func done(c *cli.Context) error {
-	return rl.Done(fileName)
-}
-
-func open(c *cli.Context) error {
-	return rl.Open(fileName)
-}
-
-func show(c *cli.Context) error {
-	return rl.Show(fileName)
 }
