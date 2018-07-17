@@ -101,20 +101,6 @@ func Count(file string) error {
 	return nil
 }
 
-func first(file string) (string, error) {
-	rl, err := Read(file)
-
-	if err != nil {
-		return "", err
-	}
-
-	if len(rl.Items) == 0 {
-		return "", nil
-	}
-
-	return rl.Items[0], nil
-}
-
 // Read reads a ReadingList from file.
 func Read(file string) (ReadingList, error) {
 	b, err := ioutil.ReadFile(file) // TODO: create if not exist (?)
@@ -153,6 +139,20 @@ func Write(file string, rl ReadingList) error {
 	}
 
 	return ioutil.WriteFile(file, b, os.ModeAppend)
+}
+
+func first(file string) (string, error) {
+	rl, err := Read(file)
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(rl.Items) == 0 {
+		return "", nil
+	}
+
+	return rl.Items[0], nil
 }
 
 func filterEmpty(a []string) []string {
