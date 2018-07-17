@@ -21,7 +21,7 @@ type ReadingList struct {
 
 // Add adds an item i at the end of the file.
 func Add(file, i string) error {
-	rl, err := read(file)
+	rl, err := Read(file)
 
 	if err != nil {
 		return err
@@ -30,12 +30,12 @@ func Add(file, i string) error {
 	rl.Items = append(rl.Items, i)
 	rl.Added++
 
-	return write(file, rl)
+	return Write(file, rl)
 }
 
 // Done removes the first line in file and increases the count.
 func Done(file string) error {
-	rl, err := read(file)
+	rl, err := Read(file)
 
 	if err != nil {
 		return err
@@ -46,12 +46,12 @@ func Done(file string) error {
 		rl.Items = rl.Items[1:]
 	}
 
-	return write(file, rl)
+	return Write(file, rl)
 }
 
 // Remove removes the first line in file.
 func Remove(file string) error {
-	rl, err := read(file)
+	rl, err := Read(file)
 
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func Remove(file string) error {
 
 	rl.Items = rl.Items[1:]
 
-	return write(file, rl)
+	return Write(file, rl)
 }
 
 // Open opens with xdg-open (or the Mac/Windows equivalent) the first item in file.
@@ -87,7 +87,7 @@ func Show(file string) error {
 
 // Count outputs the count of read items in file.
 func Count(file string) error {
-	rl, err := read(file)
+	rl, err := Read(file)
 
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func Count(file string) error {
 }
 
 func first(file string) (string, error) {
-	rl, err := read(file)
+	rl, err := Read(file)
 
 	if err != nil {
 		return "", err
@@ -115,7 +115,8 @@ func first(file string) (string, error) {
 	return rl.Items[0], nil
 }
 
-func read(file string) (ReadingList, error) {
+// Read reads a ReadingList from file.
+func Read(file string) (ReadingList, error) {
 	b, err := ioutil.ReadFile(file) // TODO: create if not exist (?)
 	if os.IsNotExist(err) {
 		fmt.Println("No items in your reading list!")
@@ -143,7 +144,8 @@ func read(file string) (ReadingList, error) {
 	return rl, nil
 }
 
-func write(file string, rl ReadingList) error {
+// Write writes a ReadingList to file.
+func Write(file string, rl ReadingList) error {
 	b, err := json.Marshal(rl)
 
 	if err != nil {
