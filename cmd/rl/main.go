@@ -39,9 +39,21 @@ func main() {
 		},
 		{
 			Name:      "done",
-			Usage:     "Remove next item from the reading list.",
+			Usage:     "Remove next item from the reading list and increase the count of read items.",
 			UsageText: "$ rl done",
 			Action:    func(c *cli.Context) error { return rl.Done(fileName) },
+		},
+		{
+			Name:      "rm",
+			Usage:     "Remove next item from the reading list (does not increase the count).",
+			UsageText: "$ rl rm",
+			Action:    func(c *cli.Context) error { return rl.Remove(fileName) },
+		},
+		{
+			Name:      "count",
+			Usage:     "Display the amount of read items.",
+			UsageText: "$ rl count",
+			Action:    func(c *cli.Context) error { return rl.Count(fileName) },
 		},
 		{
 			Name:      "open",
