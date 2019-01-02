@@ -33,24 +33,23 @@ func main() {
 	user := os.Args[1]
 	token := os.Args[2]
 
-	new, err := fetch(user, token)
+	n, err := fetch(user, token)
+	checkErr(err)
 
-	checkAndPanic(err)
-
-	err = write(new)
-
-	checkAndPanic(err)
+	err = write(n)
+	checkErr(err)
 }
 
-func write(new rl.ReadingList) error {
+func write(n rl.ReadingList) error {
 	existing, err := rl.Read(fileName)
 
 	if err != nil {
 		return err
 	}
 
-	existing.Items = append(existing.Items, new.Items...)
-	existing.Added += len(new.Items)
+	// TODO: use sync function
+	existing.Items = append(existing.Items, n.Items...)
+	existing.Added += len(n.Items)
 
 	err = rl.Write(fileName, existing)
 
@@ -97,7 +96,7 @@ func fetch(user, token string) (rl.ReadingList, error) {
 	return readingList, nil
 }
 
-func checkAndPanic(err error) {
+func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}

@@ -99,13 +99,23 @@ func add(c *cli.Context) error {
 }
 
 func sync(c *cli.Context) error {
-	if c.NArg() != 2 {
-		fmt.Println("Missing arguments")
-		return fmt.Errorf("Missing arguments")
+	if c.NArg() == 2 {
+		args := c.Args()
+		// $ rl sync [github-token] [gist-id]
+		return rl.SyncWithGist(fileName, args[0], args[1])
 	}
 
-	args := c.Args()
+	if c.NArg() == 1 {
+		args := c.Args()
+		// $ rl sync [github-token]
+		gistID, err := rl.CreateGist(fileName, args[0])
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Created Gist, ID: %s\n", gistID)
+		return nil
+	}
 
-	// $ rl sync [github-token] [gist-id]
-	return rl.SyncWithGist(fileName, args[0], args[1])
+	fmt.Println("Missing arguments")
+	return fmt.Errorf("Missing arguments")
 }
